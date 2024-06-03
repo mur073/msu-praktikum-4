@@ -41,7 +41,8 @@ int SetTest::testFind(size_t sizeCount) {
             return 1;
         }
 
-        delete it;
+        dynamic_cast<Set::SetIterator*>(it)->~SetIterator();
+        free(it);
     }
 
     chrono::high_resolution_clock::time_point end =
@@ -80,6 +81,9 @@ int SetTest::removeOdd(size_t testCount) {
             it->goToNext();
         }
     }
+
+    dynamic_cast<Set::SetIterator*>(it)->~SetIterator();
+    free(it);
 
     delete elemCopy;
 

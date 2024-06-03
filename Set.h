@@ -20,11 +20,16 @@ class Set : public AbstractSet {
     void cleanContainer();
 
    public:
-    size_t longestList() { return longestListSize; }
+    size_t longestList() const { return longestListSize; }
 
     Set(MemoryManager &mem)
         : AbstractSet(mem), m_size(0), m_capacity(initCapacity) {
         m_data = (List **)_memory.allocMem(sizeof(List *) * m_capacity);
+
+        if (!m_data)
+            throw Error(
+                "SET-ERR: Could not create new Set because of memory error.");
+
         cleanContainer();
     }
 
@@ -34,7 +39,7 @@ class Set : public AbstractSet {
         cout << "Set Destructor\n";
     }
 
-    class SetIterator : public AbstractSet::Iterator {
+    class SetIterator : public Container::Iterator {
        private:
         Iterator *listIt;
         Set *set;
@@ -62,16 +67,16 @@ class Set : public AbstractSet {
     };
 
     inline size_t max_bytes() { return _memory.size(); };
-    inline int size() { return m_size; };
 
-    int insert(void *elem, size_t size);
+    inline int size() { return m_size; };
+    inline bool empty() { return m_size == 0; }
 
     inline Iterator *newIterator() { return new SetIterator(this); }
 
     Iterator *find(void *elem, size_t size);
 
+    int insert(void *elem, size_t size);
+
     void remove(Iterator *iter);
     void clear();
-
-    inline bool empty() { return m_size == 0; }
 };

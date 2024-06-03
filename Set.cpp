@@ -65,6 +65,7 @@ Container::Iterator* Set::find(void* elem, size_t size) {
 }
 
 void Set::remove(Iterator* iter) {
+    if (!iter) throw Error("SET-ERR:find: Trying to access to null iterator.");
     if (m_size == 0) return;
 
     SetIterator* it = dynamic_cast<SetIterator*>(iter);
@@ -97,6 +98,8 @@ void Set::clear() {
 }
 
 int Set::insert(void* elem, size_t size) {
+    if (!elem) throw Error("SET-ERR:insert: Trying to access to null pointer.");
+
     size_t hash = PearsonHashing(elem, size, m_capacity);
     Iterator* tmp;
 

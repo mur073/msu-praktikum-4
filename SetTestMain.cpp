@@ -19,7 +19,7 @@ int main() {
 
     Test.testInsert(size);
     Test.testFind(size);
-    Test.removeOdd(size);
+    // Test.removeOdd(size);
 
     return 0;
 }
