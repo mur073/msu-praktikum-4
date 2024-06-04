@@ -36,7 +36,6 @@ class Set : public AbstractSet {
     ~Set() {
         clear();
         _memory.freeMem(m_data);
-        cout << "Set Destructor\n";
     }
 
     class SetIterator : public Container::Iterator {
@@ -66,12 +65,10 @@ class Set : public AbstractSet {
         }
     };
 
-    inline size_t max_bytes() { return _memory.size(); };
-
+    inline size_t max_bytes() { return _memory.size(); }
+    inline Iterator *newIterator() { return new SetIterator(this); }
     inline int size() { return m_size; };
     inline bool empty() { return m_size == 0; }
-
-    inline Iterator *newIterator() { return new SetIterator(this); }
 
     Iterator *find(void *elem, size_t size);
 

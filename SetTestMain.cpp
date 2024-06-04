@@ -19,7 +19,8 @@ int main() {
 
     Test.testInsert(size);
     Test.testFind(size);
-    // Test.removeOdd(size);
+    Test.removeOdd(size);
+    Test.testInsertString(128);
 
     return 0;
 }

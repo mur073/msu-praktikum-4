@@ -1,0 +1,15 @@
+
+// chrono::high_resolution_clock::time_point start =
+//         chrono::high_resolution_clock::now();
+
+// ....
+
+//     chrono::high_resolution_clock::time_point end =
+//         chrono::high_resolution_clock::now();
+//     double time_taken =
+//         chrono::duration_cast<chrono::nanoseconds>(end - start).count();
+//     time_taken *= 1e-9;
+//     cout << "Time taken by insert() is : " << fixed << time_taken
+//          << setprecision(9) << " sec" << endl;
+
+//     return 0;

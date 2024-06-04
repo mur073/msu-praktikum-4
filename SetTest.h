@@ -1,17 +1,14 @@
 #pragma once
-#include <chrono>
-#include <fstream>
-#include <iomanip>
+
+#include <math.h>
+
 #include <iostream>
-#include <limits>
 #include <string>
 
 #include "Mem.h"
 #include "Set.h"
 
 using namespace std;
-
-#define int_type int
 
 class SetTest {
    private:
@@ -26,4 +23,6 @@ class SetTest {
     int testFind(size_t testCount);
 
     int removeOdd(size_t testCount);
+
+    int testInsertString(size_t testCount);
 };
