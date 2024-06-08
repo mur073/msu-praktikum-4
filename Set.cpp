@@ -9,14 +9,10 @@ size_t Set::findNextList(size_t startPos) {
     return i;
 }
 
-List::Iterator* Set::newListIterator(size_t& listPos, bool fromBegin) {
+List::Iterator* Set::newListIterator(size_t listPos, bool fromBegin) {
     listPos = findNextList(listPos + 1 - fromBegin);
 
     return (listPos < m_capacity) ? m_data[listPos]->newIterator() : nullptr;
-}
-
-void Set::cleanContainer() {
-    for (size_t i = 0; i < m_capacity; ++i) m_data[i] = nullptr;
 }
 
 void* Set::SetIterator::getElement(size_t& size) {
@@ -30,15 +26,17 @@ void Set::SetIterator::goToNext() {
         return;
     }
 
+    size_t hash = getHashCode();
+
     set->_memory.freeMem(listIt);
-    listIt = set->newListIterator(listPos, false);
+    listIt = set->newListIterator(hash, false);
 }
 
 bool Set::SetIterator::hasNext() {
     if (!listIt) return false;
     if (listIt->hasNext()) return true;
 
-    return set->findNextList(listPos + 1) < set->m_capacity;
+    return set->findNextList(getHashCode() + 1) < set->m_capacity;
 }
 
 bool Set::SetIterator::equals(Iterator* right) {
@@ -50,8 +48,15 @@ bool Set::SetIterator::equals(Iterator* right) {
     return listIt->equals(rightIt->listIt);
 }
 
+size_t Set::SetIterator::getHashCode() {
+    size_t elemSize;
+    void* elem = getElement(elemSize);
+
+    return set->PearsonHashing(elem, elemSize);
+}
+
 Container::Iterator* Set::find(void* elem, size_t size) {
-    size_t hash = hashFunction(elem, size);
+    size_t hash = PearsonHashing(elem, size);
 
     if (!m_data[hash] || m_data[hash]->empty()) return nullptr;
 
@@ -73,35 +78,21 @@ void Set::remove(Iterator* iter) {
     if (this != it->set) return;
 
     bool isLastInList = !it->listIt->hasNext();
+    size_t _listPos = it->getHashCode();
 
-    m_data[it->listPos]->remove(it->listIt);
+    m_data[it->getHashCode()]->remove(it->listIt);
     m_size--;
 
     if (isLastInList) {
-        size_t _listPos = it->listPos;
         _memory.freeMem(it->listIt);
         it->listIt = newListIterator(_listPos, 0);
-        it->listPos = _listPos;
     }
-}
-
-void Set::clear() {
-    for (int i = 0; i < m_capacity; ++i) {
-        if (m_data[i]) {
-            if (!m_data[i]->empty()) m_data[i]->clear();
-
-            _memory.freeMem(m_data[i]);
-            m_data[i] = nullptr;
-        }
-    }
-
-    m_size = 0;
 }
 
 int Set::insert(void* elem, size_t size) {
     if (!elem) throw Error("SET-ERR:insert: Trying to access to null pointer.");
 
-    size_t hash = hashFunction(elem, size);
+    size_t hash = PearsonHashing(elem, size);
     Iterator* tmp;
 
     if (m_data[hash] && (tmp = m_data[hash]->find(elem, size))) {
@@ -115,7 +106,8 @@ int Set::insert(void* elem, size_t size) {
 
     if (error) return 2;
 
-    longestListSize = max(longestListSize, (size_t)m_data[hash]->size());
+    if (m_data[hash]->size() >= MAX_LIST_LENGTH) resize(m_capacity * 2);
+
     m_size++;
 
     return 0;

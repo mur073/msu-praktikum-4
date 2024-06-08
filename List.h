@@ -1,28 +1,27 @@
 #pragma once
 #include <iostream>
-#include "ListAbstract.h"
 #include <list>
 
+#include "ListAbstract.h"
+
 typedef struct Pair {
-    Pair(size_t elemSize, void* elem): elemSize(elemSize), elem(elem) {}
+    Pair(size_t elemSize, void *elem) : elemSize(elemSize), elem(elem) {}
     size_t elemSize;
-    void* elem;
+    void *elem;
 } Pair;
 
 using TList = list<Pair *>;
 
-class List : public AbstractList
-{
-private:
+class List : public AbstractList {
+   private:
     TList *m_list;
 
-public:
+   public:
     List(MemoryManager &mem) : AbstractList(mem), m_list(new TList()) {}
 
     ~List() {}
 
-    int push_front(void *elem, size_t elemSize)
-    {
+    int push_front(void *elem, size_t elemSize) {
         void *newElem = _memory.allocMem(elemSize);
         memcpy(newElem, elem, elemSize);
 
@@ -40,12 +39,12 @@ public:
     }
 
     class ListIterator : public List::Iterator {
-    public:
-        TList* l;
+       public:
+        TList *l;
         TList::iterator it;
 
-        ListIterator(TList* l) : l(l), it(l->begin()) {}
-        ListIterator(TList* l, TList::iterator it) : l(l), it(it) {}
+        ListIterator(TList *l) : l(l), it(l->begin()) {}
+        ListIterator(TList *l, TList::iterator it) : l(l), it(it) {}
 
         void *getElement(size_t &size) {
             if (it == l->end()) return nullptr;
@@ -85,14 +84,13 @@ public:
     Iterator *find(void *elem, size_t size) {
         TList::iterator it = m_list->begin();
 
-        void* _elem;
+        void *_elem;
         for (; it != m_list->end(); ++it) {
             if ((*it)->elemSize == size) {
                 _elem = (*it)->elem;
                 if (memcmp(_elem, elem, size) == 0) {
                     return new ListIterator(m_list, it);
                 }
-
             }
         }
 
@@ -105,36 +103,6 @@ public:
         ListIterator *it = dynamic_cast<ListIterator *>(iter);
         it->it = m_list->erase(it->it);
     }
-    // void remove(Iterator *iter){
-    //     size_t size1, size2;
-    //     void* toFind = iter->getElement(size1);
-
-    //     if (m_list->size() == 0) return;
-
-    //     ListIterator *it = dynamic_cast<ListIterator *>(newIterator());
-    //     void* cur;
-
-    //     while (it) {
-    //         cur = it->getElement(size2);
-    //         if (!cur) break;
-
-    //         if (size1 != size2) continue;
-
-    //         int flag = memcmp(toFind, cur, size2);
-
-    //         // TList::iterator newIt = m_list->begin();
-    //         // while (newIt != it->it) newIt++;
-    //         // newIt++;
-
-    //         if (flag == 0) {
-    //             it->it = 
-    //             m_list->remove(*(it->it));
-    //             return;
-    //         }
-    //         it->goToNext();
-    //     }
-    // }
-
     void clear() { m_list->clear(); }
 
     bool empty() { return m_list->size() == 0; }

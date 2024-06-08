@@ -1,32 +1,16 @@
 #pragma once
-#include "List_1.h"
+
 #include "SetAbstract.h"
 #include "iostream"
 
-// const size_t initCapacity = 1000003;
-
 class Set : public AbstractSet {
    private:
-    size_t longestListSize;  // temp
-
-    size_t m_capacity;
-    size_t m_size;
-    List **m_data;
-
     size_t findNextList(size_t startPos);
 
-    List::Iterator *newListIterator(size_t &listPos, bool fromBegin);
-
-    void cleanContainer();
+    List::Iterator *newListIterator(size_t listPos, bool fromBegin);
 
    public:
-    size_t longestList() const { return longestListSize; }
-
-    Set(MemoryManager &mem)
-        : AbstractSet(mem), m_size(0), m_capacity(containerCapacity) {
-        m_data = (List **)_memory.allocMem(sizeof(List *) * m_capacity);
-        cleanContainer();
-    }
+    Set(MemoryManager &mem) : AbstractSet(mem) {}
 
     ~Set() {
         clear();
@@ -35,16 +19,19 @@ class Set : public AbstractSet {
 
     class SetIterator : public Container::Iterator {
        private:
-        Iterator *listIt;
         Set *set;
-        size_t listPos;
+        Iterator *listIt;
 
-       public:
+        size_t getHashCode();
+
         SetIterator(Set *set, Iterator *it, size_t listPos)
-            : listIt(it), set(set), listPos(listPos) {}
+            : set(set), listIt(it) {}
 
         SetIterator(Set *set)
-            : set(set), listIt(set->newListIterator(listPos, true)) {}
+            : set(set), listIt(set->newListIterator(0, true)) {}
+
+       public:
+        friend class Set;
 
         void *getElement(size_t &size);
 
@@ -53,22 +40,16 @@ class Set : public AbstractSet {
         bool hasNext();
         bool equals(Iterator *right);
 
-        friend class Set;
-
         ~SetIterator() {
             if (listIt) set->_memory.freeMem(listIt);
         }
     };
 
-    inline size_t max_bytes() { return _memory.size(); }
     inline Iterator *newIterator() { return new SetIterator(this); }
-    inline int size() { return m_size; }
-    inline bool empty() { return m_size == 0; }
 
     Iterator *find(void *elem, size_t size);
 
     int insert(void *elem, size_t size);
 
     void remove(Iterator *iter);
-    void clear();
 };

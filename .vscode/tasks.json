@@ -11,11 +11,12 @@
                 "${file}",
                 "List_1.cpp",
                 "SetTest.cpp",
-                
+                "GroupContainer.cpp",
                 "GroupList.cpp",
                 "Set.cpp",
                 "-o",
-                "${fileDirname}/${fileBasenameNoExtension}"
+                "${fileDirname}/${fileBasenameNoExtension}",
+
             ],
             "options": {
                 "cwd": "${fileDirname}"

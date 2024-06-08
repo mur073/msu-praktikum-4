@@ -2,6 +2,7 @@
 
 void SetTest::testInsert(size_t testCount) {
     printf("testing insert() and find() ");
+
     size_t elemSize;
     int* elem;
     int e;
@@ -16,15 +17,25 @@ void SetTest::testInsert(size_t testCount) {
             return;
         }
 
-        Set::Iterator* it = set->find(&i, sizeof(i));
+        Set::SetIterator* it =
+            dynamic_cast<Set::SetIterator*>(set->find(&i, sizeof(i)));
         if (it) {
             elem = (int*)it->getElement(elemSize);
 
-            if (*elem == i) continue;
-        }
+            if (*elem != i) {
+                printf(
+                    "-> failed.\nfind() returned iterator to other "
+                    "element.\n\n");
 
-        printf("-> failed.\nInserted element was not found.\n\n");
-        return;
+                delete it;
+                return;
+            }
+
+            delete it;
+        } else {
+            printf("-> failed.\nInserted element was not found.\n\n");
+            return;
+        }
     }
     printf("\t\t\t\t-> successfully passed.\n\n");
 }
@@ -50,21 +61,24 @@ void SetTest::removeOdd(size_t testCount) {
 
     printf("testing remove() by deleting odd elements ");
 
-    Set::Iterator* it = set->newIterator();
+    Set::SetIterator* it = dynamic_cast<Set::SetIterator*>(set->newIterator());
     int *elem, elemCopy;
     size_t size;
 
     while (it->hasNext()) {
         elem = (int*)(it->getElement(size));
-
         if ((*elem) % 2) {
             elemCopy = *elem;
             set->remove(it);
 
-            Set::Iterator* tmp = set->find(&elemCopy, size);
+            Set::SetIterator* tmp =
+                dynamic_cast<Set::SetIterator*>(set->find(&elemCopy, size));
             if (tmp) {
                 printf("-> failed.\nRemoved element (%d) was found.\n\n",
                        elemCopy);
+
+                delete it;
+
                 return;
             }
 
@@ -81,21 +95,27 @@ void SetTest::removeOdd(size_t testCount) {
         Set::Iterator* tmp = set->find(&elemCopy, size);
         if (tmp) {
             printf("-> failed.\nRemoved element (%d) was found.\n\n", elemCopy);
+
+            delete it;
+
             return;
         }
     }
 
-    delete dynamic_cast<Set::SetIterator*>(it);
+    delete it;
 
-    it = set->newIterator();
+    it = dynamic_cast<Set::SetIterator*>(set->newIterator());
     while (it->hasNext()) {
         elem = (int*)it->getElement(size);
         v[*elem] = true;
 
         it->goToNext();
     }
+
     elem = (int*)it->getElement(size);
     v[*elem] = true;
+
+    delete it;
 
     for (int i = 0; i < testCount; ++i) {
         if (v[i] == i % 2) {
@@ -139,13 +159,14 @@ void SetTest::testInsertString(size_t testCount) {
     for (int i = 0; i < testCount; ++i) {
         numberToBin(arr, i, bits);
 
-        Set::Iterator* it = set->find(arr, bits + 1);
+        Set::SetIterator* it =
+            dynamic_cast<Set::SetIterator*>(set->find(arr, bits + 1));
 
         if (!it) {
             printf("-> fialed.\nString: %s was not found.\n", arr);
         }
 
-        delete dynamic_cast<Set::SetIterator*>(it);
+        delete it;
     }
 }
 

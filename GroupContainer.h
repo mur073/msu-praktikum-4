@@ -1,9 +1,36 @@
 #pragma once
 #include "Container.h"
+#include "List_1.h"
 
-#define containerCapacity 1000003
+const size_t HASH_LENGTH = 3;
+const size_t MAX_LIST_LENGTH = 50;
+const size_t INIT_CAPACITY = 100;
 
-const size_t hashLen = 3;
+class GroupContainer : public Container {
+   public:
+    GroupContainer(MemoryManager &mem)
+        : Container(mem), m_capacity(INIT_CAPACITY), m_size(0) {
+        m_data = (List **)_memory.allocMem(sizeof(List *) * m_capacity);
+        cleanListsArr();
+    }
+
+    inline size_t max_bytes() { return _memory.size(); }
+    inline int size() { return m_size; }
+    inline bool empty() { return m_size == 0; }
+
+    void clear();
+
+   protected:
+    List **m_data;
+    size_t m_capacity;
+    size_t m_size;
+
+    void cleanListsArr();
+    void resize(size_t newCapacity);
+
+    size_t PearsonHashing(void *elem, size_t elemSize);
+};
+
 static const unsigned char T[256] = {
     98,  6,   85,  150, 36,  23,  112, 164, 135, 207, 169, 5,   26,  64,  165,
     219, 61,  20,  68,  89,  130, 63,  52,  102, 24,  229, 132, 245, 80,  216,
@@ -23,41 +50,3 @@ static const unsigned char T[256] = {
     87,  240, 155, 180, 170, 242, 212, 191, 163, 78,  218, 137, 194, 175, 110,
     43,  119, 224, 71,  122, 142, 42,  160, 104, 48,  247, 103, 15,  11,  138,
     239};
-
-class GroupContainer : public Container {
-   public:
-    GroupContainer(MemoryManager &mem) : Container(mem) {}
-
-   protected:
-    size_t hashFunction(void *elem, size_t elemSize) {
-        size_t hash = 0, i, j;
-
-        const unsigned char *str = (unsigned char *)elem;
-        unsigned char h, H[hashLen];
-
-        for (i = 0; i < hashLen; ++i) {
-            h = T[(str[0] + i) % 256];
-
-            for (j = 0; j < elemSize; ++j) h = T[h ^ str[j]];
-
-            H[i] = h;
-
-            for (j = 0; j < 8; ++j) {
-                if ((H[i] >> j) & 1) hash |= 1LL << (8 * (hashLen - i - 1) + j);
-            }
-
-            // printf("%hhu\n", H[i]);
-        }
-
-        return hash % containerCapacity;
-
-        //     size_t hash = 1;
-        //     u_int8_t *str = static_cast<u_int8_t *>(key);
-        //     for (size_t i = 0; i != keySize; ++i) {
-        //         int s = hash + str[i];
-        //         hash ^= (str[i] << 5) * 31;
-        //         hash ^= (str[i] >> 3) * 19;
-        //     }
-        //     return hash % containerCapacity;
-    }
-};
