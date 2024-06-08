@@ -3,7 +3,7 @@
 #include "SetAbstract.h"
 #include "iostream"
 
-const size_t initCapacity = 1000000;
+// const size_t initCapacity = 1000003;
 
 class Set : public AbstractSet {
    private:
@@ -23,13 +23,8 @@ class Set : public AbstractSet {
     size_t longestList() const { return longestListSize; }
 
     Set(MemoryManager &mem)
-        : AbstractSet(mem), m_size(0), m_capacity(initCapacity) {
+        : AbstractSet(mem), m_size(0), m_capacity(containerCapacity) {
         m_data = (List **)_memory.allocMem(sizeof(List *) * m_capacity);
-
-        if (!m_data)
-            throw Error(
-                "SET-ERR: Could not create new Set because of memory error.");
-
         cleanContainer();
     }
 
@@ -67,7 +62,7 @@ class Set : public AbstractSet {
 
     inline size_t max_bytes() { return _memory.size(); }
     inline Iterator *newIterator() { return new SetIterator(this); }
-    inline int size() { return m_size; };
+    inline int size() { return m_size; }
     inline bool empty() { return m_size == 0; }
 
     Iterator *find(void *elem, size_t size);

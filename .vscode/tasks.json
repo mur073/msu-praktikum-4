@@ -11,7 +11,7 @@
                 "${file}",
                 "List_1.cpp",
                 "SetTest.cpp",
-                "GroupContainer.cpp",
+                
                 "GroupList.cpp",
                 "Set.cpp",
                 "-o",

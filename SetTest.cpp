@@ -1,49 +1,56 @@
 #include "SetTest.h"
 
-int SetTest::testInsert(size_t testCount) {
-    printf("testing insert()...\n");
+void SetTest::testInsert(size_t testCount) {
+    printf("testing insert() and find() ");
+    size_t elemSize;
+    int* elem;
+    int e;
 
-    int err = 0;
     for (int i = 0; i < testCount; ++i) {
-        err = set->insert(&i, sizeof(i));
+        e = set->insert(&i, sizeof(i));
 
-        if (err == 1) {
-            cout << "ERROR: Element " << i << " already exists in set.\n";
-            return 1;
+        if (e != 0) {
+            printf(
+                "-> failed.\nExpected insert() to return 0, but got 1 or 2 "
+                "instead.\n\n");
+            return;
         }
-        if (err == 2) {
-            cout << "ERROR: Element " << i << " was not inserted.\n";
-            return 1;
+
+        Set::Iterator* it = set->find(&i, sizeof(i));
+        if (it) {
+            elem = (int*)it->getElement(elemSize);
+
+            if (*elem == i) continue;
         }
+
+        printf("-> failed.\nInserted element was not found.\n\n");
+        return;
     }
-
-    return 0;
+    printf("\t\t\t\t-> successfully passed.\n\n");
 }
 
-int SetTest::testFind(size_t sizeCount) {
-    printf("testing find()...\n");
+void SetTest::checkInsertSpeed(size_t testCount) {
+    set->clear();
 
-    Set::Iterator* it;
+    printf("testing insert() speed with %zu elements (", testCount);
+    steady_clock::time_point begin = steady_clock::now();
 
-    for (int i = 0; i < sizeCount; ++i) {
-        it = set->find(&i, sizeof(i));
+    for (int i = 0; i < testCount; ++i) set->insert(&i, sizeof(i));
 
-        if (!it) {
-            cout << "ERROR: Element " << i << " was not found.\n";
-            return 1;
-        }
-
-        delete dynamic_cast<Set::SetIterator*>(it);
-    }
-
-    return 0;
+    steady_clock::time_point end = steady_clock::now();
+    cout << duration_cast<milliseconds>(end - begin).count()
+         << "ms)\t-> successfully passed.\n\n";
 }
 
-int SetTest::removeOdd(size_t testCount) {
-    printf("testing remove() by deleting odd elements...\n");
+void SetTest::removeOdd(size_t testCount) {
+    set->clear();
+    fill(testCount);
+
+    vector<bool> v(testCount, false);
+
+    printf("testing remove() by deleting odd elements ");
 
     Set::Iterator* it = set->newIterator();
-
     int *elem, elemCopy;
     size_t size;
 
@@ -56,58 +63,92 @@ int SetTest::removeOdd(size_t testCount) {
 
             Set::Iterator* tmp = set->find(&elemCopy, size);
             if (tmp) {
-                cout << "Element " << elemCopy << " was not deleted\n";
-                return 1;
+                printf("-> failed.\nRemoved element (%d) was found.\n\n",
+                       elemCopy);
+                return;
             }
+
         } else {
             it->goToNext();
         }
     }
 
-    delete dynamic_cast<Set::SetIterator*>(it);
+    elem = (int*)(it->getElement(size));
+    if ((*elem) % 2) {
+        elemCopy = *elem;
+        set->remove(it);
 
-    return 0;
-}
-
-std::string numberToBin(int number, int bits) {
-    std::string s(bits, '0');
-
-    for (int i = 0; i < bits; ++i) {
-        s[i] = ((number >> (bits - i - 1)) & 1) ? '1' : '0';
+        Set::Iterator* tmp = set->find(&elemCopy, size);
+        if (tmp) {
+            printf("-> failed.\nRemoved element (%d) was found.\n\n", elemCopy);
+            return;
+        }
     }
 
-    return s;
-}
+    delete dynamic_cast<Set::SetIterator*>(it);
 
-int SetTest::testInsertString(size_t testCount) {
-    printf("testing insert() and find() with strings...\n");
-    set->clear();
+    it = set->newIterator();
+    while (it->hasNext()) {
+        elem = (int*)it->getElement(size);
+        v[*elem] = true;
 
-    int bits = (int)log2(testCount);
+        it->goToNext();
+    }
+    elem = (int*)it->getElement(size);
+    v[*elem] = true;
 
     for (int i = 0; i < testCount; ++i) {
-        string s = numberToBin(i, bits);
+        if (v[i] == i % 2) {
+            if (v[i]) {
+                printf("-> failed.\nOdd number (%d) was not removed.", i);
+            } else {
+                printf("-> failed.\nEven element (%d) was not found.\n", i);
+            }
+            return;
+        }
+    }
 
-        int err = set->insert(&s, s.size());
+    printf("\t\t-> successfully passed.\n\n");
+}
+
+void numberToBin(char* arr, int number, int bits) {
+    for (int i = 0; i < bits; ++i) {
+        arr[i] = ((number >> (bits - i - 1)) & 1) ? '1' : '0';
+    }
+}
+
+void SetTest::testInsertString(size_t testCount) {
+    set->clear();
+
+    printf("testing by inserting strings ");
+
+    int bits = (int)log2(testCount);
+    char arr[bits + 1];
+    arr[bits] = '\0';
+
+    for (int i = 0; i < testCount; ++i) {
+        numberToBin(arr, i, bits);
+
+        int err = set->insert(arr, bits + 1);
 
         if (err != 0) {
-            cout << "ERROR: Unexpected behaviour.\n";
-            return 1;
+            printf("-> failed.\nString was not inserted.\n");
         }
     }
 
     for (int i = 0; i < testCount; ++i) {
-        string s = numberToBin(i, bits);
+        numberToBin(arr, i, bits);
 
-        Set::Iterator* it = set->find(&s, s.size());
+        Set::Iterator* it = set->find(arr, bits + 1);
 
         if (!it) {
-            cout << "ERROR: String: " << s << " was not found.\n";
-            return 1;
+            printf("-> fialed.\nString: %s was not found.\n", arr);
         }
 
         delete dynamic_cast<Set::SetIterator*>(it);
     }
+}
 
-    return 0;
+void SetTest::fill(size_t testCount) {
+    for (int i = 0; i < testCount; ++i) set->insert(&i, sizeof(i));
 }

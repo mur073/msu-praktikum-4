@@ -13,3 +13,21 @@
 //          << setprecision(9) << " sec" << endl;
 
 //     return 0;
+
+
+void Set::remove(Iterator* iter) {
+    if (m_size == 0) return;
+
+    SetIterator* it = dynamic_cast<SetIterator*>(iter);
+
+    if (this != it->set) return;
+
+    SetIterator* itCopy = new SetIterator(this, it->listIt, it->listPos);
+
+    if (it->listIt->hasNext() == 0) it->goToNext();
+
+    m_data[itCopy->listPos]->remove(itCopy->listIt);
+    m_size--;
+
+    _memory.freeMem(itCopy);
+}

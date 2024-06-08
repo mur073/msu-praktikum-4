@@ -18,9 +18,8 @@ int main() {
     size_t size = 1000000;
 
     Test.testInsert(size);
-    Test.testFind(size);
+    Test.checkInsertSpeed(size);
     Test.removeOdd(size);
-    Test.testInsertString(128);
 
     return 0;
 }

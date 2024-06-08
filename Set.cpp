@@ -51,7 +51,6 @@ bool Set::SetIterator::equals(Iterator* right) {
 }
 
 Container::Iterator* Set::find(void* elem, size_t size) {
-    // size_t hash = PearsonHashing(elem, size, m_capacity);
     size_t hash = hashFunction(elem, size);
 
     if (!m_data[hash] || m_data[hash]->empty()) return nullptr;
@@ -102,7 +101,6 @@ void Set::clear() {
 int Set::insert(void* elem, size_t size) {
     if (!elem) throw Error("SET-ERR:insert: Trying to access to null pointer.");
 
-    // size_t hash = PearsonHashing(elem, size, m_capacity);
     size_t hash = hashFunction(elem, size);
     Iterator* tmp;
 
