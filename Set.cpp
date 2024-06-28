@@ -21,6 +21,7 @@ void* Set::SetIterator::getElement(size_t& size) {
 
 void Set::SetIterator::goToNext() {
     if (!listIt) return;
+
     if (listIt->hasNext()) {
         listIt->goToNext();
         return;

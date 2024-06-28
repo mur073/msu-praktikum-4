@@ -4,7 +4,7 @@
 
 const size_t HASH_LENGTH = 3;
 const size_t MAX_ALLOWED_LIST_LENGTH = 50;
-const size_t INIT_CAPACITY = 1000000;
+const size_t INIT_CAPACITY = 100'000;
 
 class GroupContainer : public Container {
    public:

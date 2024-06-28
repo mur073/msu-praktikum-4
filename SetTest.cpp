@@ -168,6 +168,8 @@ void SetTest::testInsertString(size_t testCount) {
 
         delete it;
     }
+
+    printf("\t\t\t\t-> successfully passed.\n\n");
 }
 
 void SetTest::fill(size_t testCount) {
