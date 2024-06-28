@@ -1,3 +1,3 @@
-# Realization of unordered set
+# Implementation of unordered set
 
 List by Anton S.
