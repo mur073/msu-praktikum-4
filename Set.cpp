@@ -95,7 +95,8 @@ int Set::insert(void* elem, size_t size) {
     size_t hash = PearsonHashing(elem, size);
     Iterator* tmp;
 
-    if (m_data[hash] && (tmp = m_data[hash]->find(elem, size))) {
+    if (m_data[hash] && !m_data[hash]->empty() &&
+        (tmp = m_data[hash]->find(elem, size))) {
         _memory.freeMem(tmp);
         return 1;
     }
@@ -106,7 +107,7 @@ int Set::insert(void* elem, size_t size) {
 
     if (error) return 2;
 
-    if (m_data[hash]->size() >= MAX_LIST_LENGTH) resize(m_capacity * 2);
+    if (m_data[hash]->size() >= MAX_ALLOWED_LIST_LENGTH) resize(m_capacity * 2);
 
     m_size++;
 

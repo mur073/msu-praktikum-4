@@ -3,8 +3,8 @@
 #include "List_1.h"
 
 const size_t HASH_LENGTH = 3;
-const size_t MAX_LIST_LENGTH = 50;
-const size_t INIT_CAPACITY = 100;
+const size_t MAX_ALLOWED_LIST_LENGTH = 50;
+const size_t INIT_CAPACITY = 1000000;
 
 class GroupContainer : public Container {
    public:
